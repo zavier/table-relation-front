@@ -149,8 +149,6 @@ onMounted(() => {
 
     <!-- 查询条件 -->
     <div class="query-conditions" v-if="selectedTable">
-      <h3>查询条件</h3>
-      <el-button type="primary" @click="addCondition">添加条件</el-button>
       
       <div v-for="(condition, index) in queryConditions" :key="index" class="condition-row">
         <el-select v-model="condition.field" placeholder="选择字段" class="condition-field">
@@ -175,9 +173,12 @@ onMounted(() => {
         <el-button type="danger" @click="removeCondition(index)">删除</el-button>
       </div>
 
-      <el-button type="primary" @click="executeQuery" :disabled="!queryConditions.length">
-        执行查询
-      </el-button>
+      <div class="query-actions">
+        <el-button type="primary" @click="addCondition">添加条件</el-button>
+        <el-button type="primary" @click="executeQuery" :disabled="!queryConditions.length">
+          执行查询
+        </el-button>
+      </div>
     </div>
 
     <!-- 查询结果 -->
@@ -239,7 +240,7 @@ onMounted(() => {
 }
 
 .query-conditions {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .condition-row {
@@ -259,6 +260,12 @@ onMounted(() => {
 
 .condition-value {
   width: 200px;
+}
+
+.query-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .query-result {
