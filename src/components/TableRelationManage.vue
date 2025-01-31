@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 
@@ -13,6 +13,17 @@ const tables = ref([])
 const fields = ref([])
 const referencedTables = ref([])
 const referencedFields = ref([])
+
+// 筛选条件
+const selectedSchema = ref('')
+
+// 筛选后的表关系列表
+const filteredRelationList = computed(() => {
+  if (!selectedSchema.value) {
+    return relationList.value
+  }
+  return relationList.value.filter(item => item.tableSchema === selectedSchema.value)
+})
 
 // 表单数据和规则
 const formData = ref({
@@ -238,12 +249,27 @@ onMounted(() => {
   <div class="relation-manage">
     <div class="relation-header">
       <h2>表关系管理</h2>
-      <el-button type="primary" @click="openDialog()">添加表关系</el-button>
+      <div class="header-right">
+        <el-select
+          v-model="selectedSchema"
+          placeholder="选择库名筛选"
+          clearable
+          class="schema-filter"
+        >
+          <el-option
+            v-for="item in schemas"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+        <el-button type="primary" @click="openDialog()">添加表关系</el-button>
+      </div>
     </div>
     
     <!-- 表关系列表 -->
     <el-table
-      :data="relationList"
+      :data="filteredRelationList"
       v-loading="loading"
       style="width: 100%"
       border
@@ -354,6 +380,16 @@ onMounted(() => {
 
 .relation-header h2 {
   margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.schema-filter {
+  width: 200px;
 }
 
 .relation-form {
