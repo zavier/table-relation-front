@@ -7,6 +7,13 @@ import axios from 'axios'
 const relationList = ref([])
 const loading = ref(false)
 
+// 数据源选项
+const schemas = ref([])
+const tables = ref([])
+const fields = ref([])
+const referencedTables = ref([])
+const referencedFields = ref([])
+
 // 表单数据和规则
 const formData = ref({
   tableSchema: '',
@@ -17,6 +24,116 @@ const formData = ref({
   referencedColumnName: '',
   relationType: 1
 })
+
+// 获取schema列表
+const fetchSchemas = async () => {
+  try {
+    const response = await axios.get('/api/table/allSchema')
+    if (response.data.success) {
+      schemas.value = response.data.data.map((schemaName) => ({
+        value: schemaName,
+        label: schemaName
+      }))
+    } else {
+      ElMessage.error(response.data.message || '获取数据库列表失败')
+    }
+  } catch (error) {
+    ElMessage.error('获取数据库列表失败')
+  }
+}
+
+// 获取表列表
+const fetchTables = async (schema, isReferenced = false) => {
+  if (!schema) return
+  try {
+    const response = await axios.get('/api/table/schemaTables', {
+      params: { schema }
+    })
+    if (response.data.success) {
+      const tableList = response.data.data.map((tableName) => ({
+        value: tableName,
+        label: tableName
+      }))
+      if (isReferenced) {
+        referencedTables.value = tableList
+      } else {
+        tables.value = tableList
+      }
+    } else {
+      ElMessage.error(response.data.message || '获取表列表失败')
+    }
+  } catch (error) {
+    ElMessage.error('获取表列表失败')
+  }
+}
+
+// 获取字段列表
+const fetchFields = async (schema, table, isReferenced = false) => {
+  if (!schema || !table) return
+  try {
+    const response = await axios.get('/api/table/tableColumns', {
+      params: {
+        schema,
+        tableName: table
+      }
+    })
+    if (response.data.success) {
+      const fieldList = response.data.data.map((fieldName) => ({
+        value: fieldName,
+        label: fieldName
+      }))
+      if (isReferenced) {
+        referencedFields.value = fieldList
+      } else {
+        fields.value = fieldList
+      }
+    } else {
+      ElMessage.error(response.data.message || '获取字段列表失败')
+    }
+  } catch (error) {
+    ElMessage.error('获取字段列表失败')
+  }
+}
+
+// 监听主表schema变化
+const handleSchemaChange = async () => {
+  formData.value.tableName = ''
+  formData.value.columnName = ''
+  tables.value = []
+  fields.value = []
+  if (formData.value.tableSchema) {
+    await fetchTables(formData.value.tableSchema)
+  }
+}
+
+// 监听主表表名变化
+const handleTableChange = async () => {
+  formData.value.columnName = ''
+  fields.value = []
+  if (formData.value.tableSchema && formData.value.tableName) {
+    await fetchFields(formData.value.tableSchema, formData.value.tableName)
+  }
+}
+
+// 监听关联表schema变化
+const handleReferencedSchemaChange = async () => {
+  formData.value.referencedTableName = ''
+  formData.value.referencedColumnName = ''
+  referencedTables.value = []
+  referencedFields.value = []
+  if (formData.value.referencedTableSchema) {
+    await fetchTables(formData.value.referencedTableSchema, true)
+  }
+}
+
+// 监听关联表表名变化
+const handleReferencedTableChange = async () => {
+  formData.value.referencedColumnName = ''
+  referencedFields.value = []
+  if (formData.value.referencedTableSchema && formData.value.referencedTableName) {
+    await fetchFields(formData.value.referencedTableSchema, formData.value.referencedTableName, true)
+  }
+}
 
 const rules = {
   tableSchema: [{ required: true, message: '请输入主库名', trigger: 'blur' }],
@@ -113,6 +230,7 @@ const handleDelete = async (id) => {
 
 onMounted(() => {
   fetchRelations()
+  fetchSchemas()
 })
 </script>
 
@@ -171,27 +289,39 @@ onMounted(() => {
         class="relation-form"
       >
         <el-form-item label="主库名" prop="tableSchema">
-          <el-input v-model="formData.tableSchema" placeholder="请输入主库名" />
+          <el-select v-model="formData.tableSchema" placeholder="请选择主库名" @change="handleSchemaChange">
+            <el-option v-for="item in schemas" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="主表名" prop="tableName">
-          <el-input v-model="formData.tableName" placeholder="请输入主表名" />
+          <el-select v-model="formData.tableName" placeholder="请选择主表名" :disabled="!formData.tableSchema" @change="handleTableChange">
+            <el-option v-for="item in tables" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="主表字段" prop="columnName">
-          <el-input v-model="formData.columnName" placeholder="请输入主表字段" />
+          <el-select v-model="formData.columnName" placeholder="请选择主表字段" :disabled="!formData.tableName">
+            <el-option v-for="item in fields" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="关联库名" prop="referencedTableSchema">
-          <el-input v-model="formData.referencedTableSchema" placeholder="请输入关联库名" />
+          <el-select v-model="formData.referencedTableSchema" placeholder="请选择关联库名" @change="handleReferencedSchemaChange">
+            <el-option v-for="item in schemas" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="关联表名" prop="referencedTableName">
-          <el-input v-model="formData.referencedTableName" placeholder="请输入关联表名" />
+          <el-select v-model="formData.referencedTableName" placeholder="请选择关联表名" :disabled="!formData.referencedTableSchema" @change="handleReferencedTableChange">
+            <el-option v-for="item in referencedTables" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="关联表字段" prop="referencedColumnName">
-          <el-input v-model="formData.referencedColumnName" placeholder="请输入关联表字段" />
+          <el-select v-model="formData.referencedColumnName" placeholder="请选择关联表字段" :disabled="!formData.referencedTableName">
+            <el-option v-for="item in referencedFields" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="关联类型" prop="relationType">
