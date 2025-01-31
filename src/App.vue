@@ -1,10 +1,7 @@
 <script setup>
-import { ref } from 'vue'
-import DatabaseQuery from './components/DatabaseQuery.vue'
-import DataSourceManage from './components/DataSourceManage.vue'
-import TableRelationManage from './components/TableRelationManage.vue'
+import { useRouter } from 'vue-router'
 
-const activeComponent = ref('database-query')
+const router = useRouter()
 </script>
 
 <template>
@@ -13,17 +10,18 @@ const activeComponent = ref('database-query')
       <el-menu
         mode="vertical"
         class="menu"
-        :default-active="'1'"
+        :default-active="$route.path"
+        router
       >
-        <el-menu-item index="1" @click="activeComponent = 'database-query'">
+        <el-menu-item index="/database-query">
           <el-icon><Search /></el-icon>
           <span>数据库查询</span>
         </el-menu-item>
-        <el-menu-item index="2" @click="activeComponent = 'datasource-manage'">
+        <el-menu-item index="/datasource-manage">
           <el-icon><Setting /></el-icon>
           <span>数据源管理</span>
         </el-menu-item>
-        <el-menu-item index="3" @click="activeComponent = 'table-relation-manage'">
+        <el-menu-item index="/table-relation-manage">
           <el-icon><Connection /></el-icon>
           <span>表关系管理</span>
         </el-menu-item>
@@ -31,7 +29,7 @@ const activeComponent = ref('database-query')
     </el-aside>
     
     <el-main class="main">
-      <component :is="activeComponent === 'database-query' ? DatabaseQuery : activeComponent === 'datasource-manage' ? DataSourceManage : TableRelationManage" />
+      <router-view />
     </el-main>
   </el-container>
 </template>
