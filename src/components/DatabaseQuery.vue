@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
+import { ElMessage } from 'element-plus'
 
 const schemas = ref([])
 const selectedSchema = ref('')
@@ -18,13 +19,20 @@ const relatedTablesData = ref({})
 const fetchSchemas = async () => {
   try {
     const response = await axios.get('/api/table/allSchema')
-    // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
-    schemas.value = response.data.map((schemaName, index) => ({
-      id: schemaName,
-      name: schemaName
-    }))
+    if (response.data.success) {
+      // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
+      schemas.value = response.data.data.map((schemaName) => ({
+        id: schemaName,
+        name: schemaName
+      }))
+    } else {
+      ElMessage.error(response.data.message)
+      schemas.value = []
+    }
   } catch (error) {
     console.error('获取schema失败:', error)
+    ElMessage.error('获取schema失败')
+    schemas.value = []
   }
 }
 
@@ -37,16 +45,23 @@ const fetchTables = async () => {
         schema: selectedSchema.value
       }
     })
-    // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
-    tables.value = response.data.map((tableName) => ({
-      id: tableName,
-      name: tableName
-    }))
+    if (response.data.success) {
+      // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
+      tables.value = response.data.data.map((tableName) => ({
+        id: tableName,
+        name: tableName
+      }))
+    } else {
+      ElMessage.error(response.data.message)
+      tables.value = []
+    }
     selectedTable.value = ''
     fields.value = []
     queryConditions.value = []
   } catch (error) {
     console.error('获取表失败:', error)
+    ElMessage.error('获取表失败')
+    tables.value = []
   }
 }
 
@@ -60,14 +75,21 @@ const fetchFields = async () => {
         tableName: selectedTable.value
       }
     })
-    // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
-    fields.value = response.data.map(fieldName => ({
-      id: fieldName,
-      name: fieldName
-    }))
+    if (response.data.success) {
+      // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
+      fields.value = response.data.data.map(fieldName => ({
+        id: fieldName,
+        name: fieldName
+      }))
+    } else {
+      ElMessage.error(response.data.message)
+      fields.value = []
+    }
     queryConditions.value = []
   } catch (error) {
     console.error('获取字段失败:', error)
+    ElMessage.error('获取字段失败')
+    fields.value = []
   }
 }
 
@@ -93,15 +115,23 @@ const executeQuery = async () => {
       table: selectedTable.value,
       conditions: queryConditions.value
     })
-    queryResult.value = response.data
-    // 分离主表数据和关联表数据
-    mainTableData.value = response.data[selectedTable.value] || []
-    relatedTablesData.value = Object.entries(response.data)
-      .filter(([key]) => key !== selectedTable.value)
-      .reduce((acc, [key, value]) => {
-        acc[key] = value
-        return acc
-      }, {})
+    if (response.data.success) {
+      const data = response.data.data
+      queryResult.value = data
+      // 分离主表数据和关联表数据
+      mainTableData.value = data[selectedTable.value] || []
+      relatedTablesData.value = Object.entries(data)
+        .filter(([key]) => key !== selectedTable.value)
+        .reduce((acc, [key, value]) => {
+          acc[key] = value
+          return acc
+        }, {})
+    } else {
+      ElMessage.error(response.data.message)
+      queryResult.value = null
+      mainTableData.value = null
+      relatedTablesData.value = {}
+    }
   } catch (error) {
     console.error('查询执行失败:', error)
   }
