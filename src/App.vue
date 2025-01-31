@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import DatabaseQuery from './components/DatabaseQuery.vue'
 import DataSourceManage from './components/DataSourceManage.vue'
+import TableRelationManage from './components/TableRelationManage.vue'
 
 const activeComponent = ref('database-query')
 </script>
@@ -22,11 +23,15 @@ const activeComponent = ref('database-query')
           <el-icon><Setting /></el-icon>
           <span>数据源管理</span>
         </el-menu-item>
+        <el-menu-item index="3" @click="activeComponent = 'table-relation-manage'">
+          <el-icon><Connection /></el-icon>
+          <span>表关系管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     
     <el-main class="main">
-      <component :is="activeComponent === 'database-query' ? DatabaseQuery : DataSourceManage" />
+      <component :is="activeComponent === 'database-query' ? DatabaseQuery : activeComponent === 'datasource-manage' ? DataSourceManage : TableRelationManage" />
     </el-main>
   </el-container>
 </template>
