@@ -1,0 +1,229 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
+import mermaid from 'mermaid'
+
+const schemas = ref([])
+const selectedSchema = ref('')
+const tables = ref([])
+const selectedTable = ref('')
+const erDiagram = ref('')
+const loading = ref(false)
+const scale = ref(1.2) // 添加缩放比例状态
+
+// 初始化mermaid
+mermaid.initialize({
+  startOnLoad: false,  // 修改为false，手动控制渲染时机
+  theme: 'default',
+  securityLevel: 'loose',
+  fontSize: 16,
+  flowchart: {
+    htmlLabels: true,
+    curve: 'basis'
+  }
+})
+
+// 获取数据库schema列表
+const fetchSchemas = async () => {
+  try {
+    const response = await axios.get('/api/table/allSchema')
+    if (response.data.success) {
+      schemas.value = response.data.data.map((schemaName) => ({
+        id: schemaName,
+        name: schemaName
+      }))
+    } else {
+      ElMessage.error(response.data.message)
+      schemas.value = []
+    }
+  } catch (error) {
+    console.error('获取schema失败:', error)
+    ElMessage.error('获取schema失败')
+    schemas.value = []
+  }
+}
+
+// 获取表列表
+const fetchTables = async () => {
+  if (!selectedSchema.value) return
+  try {
+    const response = await axios.get(`/api/table/schemaTables`, {
+      params: {
+        schema: selectedSchema.value
+      }
+    })
+    if (response.data.success) {
+      tables.value = response.data.data.map((tableName) => ({
+        id: tableName,
+        name: tableName
+      }))
+    } else {
+      ElMessage.error(response.data.message)
+      tables.value = []
+    }
+    selectedTable.value = ''
+    erDiagram.value = ''
+  } catch (error) {
+    console.error('获取表失败:', error)
+    ElMessage.error('获取表失败')
+    tables.value = []
+  }
+}
+
+// 生成ER图
+const generateERDiagram = async () => {
+  if (!selectedSchema.value || !selectedTable.value) {
+    ElMessage.warning('请先选择数据库和表')
+    return
+  }
+
+  loading.value = true
+  try {
+    const response = await axios.get('/api/table/erDiagram', {
+      params: {
+        schema: selectedSchema.value,
+        tableName: selectedTable.value
+      }
+    })
+
+    if (response.data.success) {
+      erDiagram.value = response.data.data
+      // 清除之前的图表
+      const container = document.querySelector('#mermaid-diagram')
+      if (!container) {
+        throw new Error('找不到图表容器元素')
+      }
+      container.innerHTML = ''
+
+      // 创建新的图表容器
+      const mermaidDiv = document.createElement('div')
+      mermaidDiv.className = 'mermaid'
+      mermaidDiv.textContent = erDiagram.value
+      container.appendChild(mermaidDiv)
+
+      // 使用 try-catch 包裹渲染过程
+      try {
+        await mermaid.run()
+      } catch (renderError) {
+        console.error('Mermaid渲染错误:', renderError)
+        throw new Error('图表渲染失败')
+      }
+    } else {
+      ElMessage.error(response.data.message || '生成ER图失败')
+    }
+  } catch (error) {
+    console.error('生成ER图失败:', error)
+    ElMessage.error(error.message || '生成ER图失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 增加缩放功能
+const zoomIn = () => {
+  scale.value += 0.2
+}
+
+onMounted(() => {
+  fetchSchemas()
+})
+</script>
+
+<template>
+  <div class="er-viewer">
+    <h2>数据库ER图</h2>
+    
+    <div class="controls">
+      <!-- Schema选择 -->
+      <el-select
+        v-model="selectedSchema"
+        placeholder="选择数据库Schema"
+        class="control-item"
+        @change="fetchTables"
+      >
+        <el-option
+          v-for="schema in schemas"
+          :key="schema.id"
+          :label="schema.name"
+          :value="schema.id"
+        />
+      </el-select>
+
+      <!-- 表选择 -->
+      <el-select
+        v-model="selectedTable"
+        placeholder="选择表"
+        class="control-item"
+        :disabled="!selectedSchema"
+      >
+        <el-option
+          v-for="table in tables"
+          :key="table.id"
+          :label="table.name"
+          :value="table.id"
+        />
+      </el-select>
+
+      <!-- 生成按钮 -->
+      <el-button
+        type="primary"
+        @click="generateERDiagram"
+        :loading="loading"
+        :disabled="!selectedSchema || !selectedTable"
+      >
+        生成ER图
+      </el-button>
+
+      <!-- 放大按钮 -->
+      <el-button
+        type="primary"
+        @click="zoomIn"
+        :disabled="!erDiagram"
+      >
+        放大
+      </el-button>
+    </div>
+
+    <!-- ER图展示区域 -->
+    <div class="diagram-container">
+      <div id="mermaid-diagram" class="mermaid-diagram" :style="{ transform: `scale(${scale})` }"></div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.er-viewer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.control-item {
+  width: 200px;
+}
+
+.diagram-container {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.mermaid-diagram {
+  width: 100%;
+  min-height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-origin: center center;
+}
+</style>

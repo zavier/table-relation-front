@@ -25,6 +25,10 @@ const router = useRouter()
           <el-icon><Connection /></el-icon>
           <span>表关系管理</span>
         </el-menu-item>
+        <el-menu-item index="/er-diagram">
+          <el-icon><Share /></el-icon>
+          <span>ER图展示</span>
+        </el-menu-item>
         <el-menu-item index="/json-formatter">
           <el-icon><Document /></el-icon>
           <span>JSON格式化</span>
