@@ -114,7 +114,7 @@ const handleDelete = async (id) => {
 const testConnection = async (row) => {
   try {
     const response = await axios.post('/api/table/datasource/test', row)
-    if (response.data.success) {
+    if (response.data.success && response.data.data) {
       ElMessage.success('连接测试成功')
     } else {
       ElMessage.error(response.data.message || '连接测试失败')
@@ -204,6 +204,7 @@ onMounted(() => {
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="testConnection(formData)">测试连接</el-button>
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
