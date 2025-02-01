@@ -33,7 +33,8 @@ const formData = ref({
   referencedTableSchema: '',
   referencedTableName: '',
   referencedColumnName: '',
-  relationType: 1
+  relationType: 1,
+  condition: ''
 })
 
 // 获取schema列表
@@ -153,7 +154,8 @@ const rules = {
   referencedTableSchema: [{ required: true, message: '请输入关联库名', trigger: 'blur' }],
   referencedTableName: [{ required: true, message: '请输入关联表名', trigger: 'blur' }],
   referencedColumnName: [{ required: true, message: '请输入关联表字段', trigger: 'blur' }],
-  relationType: [{ required: true, message: '请选择关联类型', trigger: 'change' }]
+  relationType: [{ required: true, message: '请选择关联类型', trigger: 'change' }],
+  condition: [{ required: false, message: '请输入关联条件', trigger: 'blur' }]
 }
 
 const formRef = ref(null)
@@ -280,6 +282,7 @@ onMounted(() => {
       <el-table-column prop="referencedTableSchema" label="关联库名" />
       <el-table-column prop="referencedTableName" label="关联表名" />
       <el-table-column prop="referencedColumnName" label="关联表字段" />
+      <el-table-column prop="condition" label="关联条件" />
       <el-table-column prop="relationType" label="关联类型" width="100">
         <template #default="{ row }">
           <span>{{ row.relationType === 1 ? '一对一' 
@@ -330,6 +333,10 @@ onMounted(() => {
           <el-select v-model="formData.columnName" placeholder="请选择主表字段" :disabled="!formData.tableName">
             <el-option v-for="item in fields" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
+        </el-form-item>
+
+        <el-form-item label="关联条件(主表)" prop="condition">
+          <el-input v-model="formData.condition" placeholder="请输入关联条件" type="textarea" :rows="3" />
         </el-form-item>
         
         <el-form-item label="关联库名" prop="referencedTableSchema">
