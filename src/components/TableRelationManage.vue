@@ -181,14 +181,37 @@ const fetchRelations = async () => {
 }
 
 // 打开添加/编辑对话框
-const openDialog = (row) => {
+const openDialog = async (row) => {
   if (row) {
     isEdit.value = true
     currentId.value = row.id
     formData.value = { ...row }
+    // 加载主表相关数据
+    await fetchTables(formData.value.tableSchema)
+    await fetchFields(formData.value.tableSchema, formData.value.tableName)
+    // 加载关联表相关数据
+    await fetchTables(formData.value.referencedTableSchema, true)
+    await fetchFields(formData.value.referencedTableSchema, formData.value.referencedTableName, true)
   } else {
     isEdit.value = false
     currentId.value = null
+    // 重置表单数据
+    formData.value = {
+      tableSchema: '',
+      tableName: '',
+      columnName: '',
+      referencedTableSchema: '',
+      referencedTableName: '',
+      referencedColumnName: '',
+      relationType: 1,
+      condition: ''
+    }
+    // 清空相关的下拉选项数据
+    tables.value = []
+    fields.value = []
+    referencedTables.value = []
+    referencedFields.value = []
+    // 重置表单验证状态
     formRef.value?.resetFields()
   }
   dialogVisible.value = true

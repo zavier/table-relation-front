@@ -58,6 +58,13 @@ const openDialog = (row) => {
   } else {
     isEdit.value = false
     currentId.value = null
+    formData.value = {
+      host: '',
+      username: '',
+      password: '',
+      database: '',
+      port: '3306'
+    }
     formRef.value?.resetFields()
   }
   dialogVisible.value = true
