@@ -4,6 +4,13 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import mermaid from 'mermaid'
 
+// 拖拽相关状态
+const isDragging = ref(false)
+const startX = ref(0)
+const startY = ref(0)
+const translateX = ref(0)
+const translateY = ref(0)
+
 const schemas = ref([])
 const selectedSchema = ref('')
 const tables = ref([])
@@ -11,6 +18,7 @@ const selectedTable = ref('')
 const erDiagram = ref('')
 const loading = ref(false)
 const scale = ref(1.2) // 添加缩放比例状态
+const MIN_SCALE = 0.4 // 添加最小缩放限制
 
 // 初始化mermaid
 mermaid.initialize({
@@ -125,6 +133,34 @@ const zoomIn = () => {
   scale.value += 0.2
 }
 
+// 缩小功能
+const zoomOut = () => {
+  if (scale.value > MIN_SCALE) {
+    scale.value -= 0.2
+  }
+}
+
+// 拖拽相关方法
+const handleMouseDown = (e) => {
+  isDragging.value = true
+  startX.value = e.clientX - translateX.value
+  startY.value = e.clientY - translateY.value
+}
+
+const handleMouseMove = (e) => {
+  if (!isDragging.value) return
+  translateX.value = e.clientX - startX.value
+  translateY.value = e.clientY - startY.value
+}
+
+const handleMouseUp = () => {
+  isDragging.value = false
+}
+
+const handleMouseLeave = () => {
+  isDragging.value = false
+}
+
 onMounted(() => {
   fetchSchemas()
 })
@@ -183,11 +219,31 @@ onMounted(() => {
       >
         放大
       </el-button>
+
+      <!-- 缩小按钮 -->
+      <el-button
+        type="primary"
+        @click="zoomOut"
+        :disabled="!erDiagram"
+      >
+        缩小
+      </el-button>
     </div>
 
     <!-- ER图展示区域 -->
     <div class="diagram-container">
-      <div id="mermaid-diagram" class="mermaid-diagram" :style="{ transform: `scale(${scale})` }"></div>
+      <div
+        id="mermaid-diagram"
+        class="mermaid-diagram"
+        :style="{
+          transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+          cursor: isDragging ? 'grabbing' : 'grab'
+        }"
+        @mousedown="handleMouseDown"
+        @mousemove="handleMouseMove"
+        @mouseup="handleMouseUp"
+        @mouseleave="handleMouseLeave"
+      ></div>
     </div>
   </div>
 </template>
@@ -225,5 +281,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   transform-origin: center center;
+  user-select: none;
+  touch-action: none;
 }
 </style>
