@@ -88,7 +88,7 @@ const generateERDiagram = async () => {
 
   loading.value = true
   try {
-    const response = await axios.get('/api/table/erDiagram', {
+    const response = await axios.get('/api/table/relation/erDiagram', {
       params: {
         schema: selectedSchema.value,
         tableName: selectedTable.value

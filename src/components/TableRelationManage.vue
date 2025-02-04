@@ -148,9 +148,9 @@ const handleReferencedTableChange = async () => {
 }
 
 const rules = {
-  tableSchema: [{ required: true, message: '请输入主库名', trigger: 'blur' }],
-  tableName: [{ required: true, message: '请输入主表名', trigger: 'blur' }],
-  columnName: [{ required: true, message: '请输入主表字段', trigger: 'blur' }],
+  tableSchema: [{ required: true, message: '请输入库名', trigger: 'blur' }],
+  tableName: [{ required: true, message: '请输入表名', trigger: 'blur' }],
+  columnName: [{ required: true, message: '请输入表字段', trigger: 'blur' }],
   referencedTableSchema: [{ required: true, message: '请输入关联库名', trigger: 'blur' }],
   referencedTableName: [{ required: true, message: '请输入关联表名', trigger: 'blur' }],
   referencedColumnName: [{ required: true, message: '请输入关联表字段', trigger: 'blur' }],
@@ -299,13 +299,13 @@ onMounted(() => {
       style="width: 100%"
       border
     >
-      <el-table-column prop="tableSchema" label="主库名" />
-      <el-table-column prop="tableName" label="主表名" />
-      <el-table-column prop="columnName" label="主表字段" />
+      <el-table-column prop="tableSchema" label="库名" />
+      <el-table-column prop="tableName" label="表名" />
+      <el-table-column prop="columnName" label="表字段" />
+      <el-table-column prop="condition" label="关联条件" />
       <el-table-column prop="referencedTableSchema" label="关联库名" />
       <el-table-column prop="referencedTableName" label="关联表名" />
       <el-table-column prop="referencedColumnName" label="关联表字段" />
-      <el-table-column prop="condition" label="关联条件" />
       <el-table-column prop="relationType" label="关联类型" width="100">
         <template #default="{ row }">
           <span>{{ row.relationType === 1 ? '一对一' 
@@ -340,25 +340,25 @@ onMounted(() => {
         label-width="120px"
         class="relation-form"
       >
-        <el-form-item label="主库名" prop="tableSchema">
-          <el-select v-model="formData.tableSchema" placeholder="请选择主库名" @change="handleSchemaChange">
+        <el-form-item label="库名" prop="tableSchema">
+          <el-select v-model="formData.tableSchema" placeholder="请选择库名" @change="handleSchemaChange">
             <el-option v-for="item in schemas" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         
-        <el-form-item label="主表名" prop="tableName">
-          <el-select v-model="formData.tableName" placeholder="请选择主表名" :disabled="!formData.tableSchema" @change="handleTableChange">
+        <el-form-item label="表名" prop="tableName">
+          <el-select v-model="formData.tableName" placeholder="请选择表名" :disabled="!formData.tableSchema" @change="handleTableChange">
             <el-option v-for="item in tables" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         
-        <el-form-item label="主表字段" prop="columnName">
-          <el-select v-model="formData.columnName" placeholder="请选择主表字段" :disabled="!formData.tableName">
+        <el-form-item label="表字段" prop="columnName">
+          <el-select v-model="formData.columnName" placeholder="请选择表字段" :disabled="!formData.tableName">
             <el-option v-for="item in fields" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="关联条件(主表)" prop="condition">
+        <el-form-item label="关联条件" prop="condition">
           <el-input v-model="formData.condition" placeholder="请输入关联条件" type="textarea" :rows="3" />
         </el-form-item>
         
