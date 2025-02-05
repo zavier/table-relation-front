@@ -87,6 +87,11 @@ const generateERDiagram = async () => {
     return
   }
 
+  // 重置缩放和位置
+  scale.value = 1.2
+  translateX.value = 0
+  translateY.value = 0
+
   loading.value = true
   try {
     const response = await axios.get('/api/table/relation/erDiagram', {
