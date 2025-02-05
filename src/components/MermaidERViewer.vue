@@ -19,6 +19,7 @@ const erDiagram = ref('')
 const loading = ref(false)
 const scale = ref(1.2) // 添加缩放比例状态
 const MIN_SCALE = 0.4 // 添加最小缩放限制
+const needTableInfo = ref(true) // 添加表信息显示选项
 
 // 初始化mermaid
 mermaid.initialize({
@@ -91,7 +92,8 @@ const generateERDiagram = async () => {
     const response = await axios.get('/api/table/relation/erDiagram', {
       params: {
         schema: selectedSchema.value,
-        tableName: selectedTable.value
+        tableName: selectedTable.value,
+        needTableInfo: needTableInfo.value
       }
     })
 
@@ -200,6 +202,14 @@ onMounted(() => {
           :value="table.id"
         />
       </el-select>
+
+      <!-- 表信息显示选项 -->
+      <el-switch
+        v-model="needTableInfo"
+        class="control-item"
+        active-text="显示表信息"
+        inactive-text="隐藏表信息"
+      />
 
       <!-- 生成按钮 -->
       <el-button
