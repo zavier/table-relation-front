@@ -16,6 +16,8 @@ const mainTableData = ref(null)
 const relatedTablesData = ref({})
 const mainTableDisplayMode = ref('json') // 主表展示模式：'json' 或 'table'
 const relatedTablesDisplayMode = ref('json') // 关联表展示模式：'json' 或 'table'
+const mainTableComments = ref({}) // 主表字段注释
+const relatedTablesComments = ref({}) // 关联表字段注释
 
 // 切换主表展示模式
 const toggleMainTableMode = () => {
@@ -128,11 +130,21 @@ const executeQuery = async () => {
       conditions: queryConditions.value
     })
     if (response.data.success) {
-      const data = response.data.data
-      queryResult.value = data
+      const { tableData, comments } = response.data.data
+      queryResult.value = tableData
       // 分离主表数据和关联表数据
-      mainTableData.value = data[selectedTable.value] || []
-      relatedTablesData.value = Object.entries(data)
+      mainTableData.value = tableData[selectedTable.value] || []
+      mainTableComments.value = comments[selectedTable.value] || {}
+      
+      // 处理关联表数据和注释
+      relatedTablesData.value = Object.entries(tableData)
+        .filter(([key]) => key !== selectedTable.value)
+        .reduce((acc, [key, value]) => {
+          acc[key] = value
+          return acc
+        }, {})
+      
+      relatedTablesComments.value = Object.entries(comments)
         .filter(([key]) => key !== selectedTable.value)
         .reduce((acc, [key, value]) => {
           acc[key] = value
@@ -253,7 +265,17 @@ onMounted(() => {
                 :key="key"
                 :prop="key"
                 :label="key"
-              />
+              >
+                <template #header>
+                  <el-tooltip
+                    :content="mainTableComments[key] || '暂无注释'"
+                    placement="top"
+                    effect="light"
+                  >
+                    <span>{{ key }}</span>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
             </el-table>
           </template>
         </el-card>
@@ -291,7 +313,17 @@ onMounted(() => {
                     :key="key"
                     :prop="key"
                     :label="key"
-                  />
+                  >
+                    <template #header>
+                      <el-tooltip
+                        :content="relatedTablesComments[tableName]?.[key] || '暂无注释'"
+                        placement="top"
+                        effect="light"
+                      >
+                        <span>{{ key }}</span>
+                      </el-tooltip>
+                    </template>
+                  </el-table-column>
                 </el-table>
               </template>
             </el-card>
