@@ -14,6 +14,18 @@ const queryConditions = ref([])
 const queryResult = ref(null)
 const mainTableData = ref(null)
 const relatedTablesData = ref({})
+const mainTableDisplayMode = ref('json') // 主表展示模式：'json' 或 'table'
+const relatedTablesDisplayMode = ref('json') // 关联表展示模式：'json' 或 'table'
+
+// 切换主表展示模式
+const toggleMainTableMode = () => {
+  mainTableDisplayMode.value = mainTableDisplayMode.value === 'json' ? 'table' : 'json'
+}
+
+// 切换关联表展示模式
+const toggleRelatedTablesMode = () => {
+  relatedTablesDisplayMode.value = relatedTablesDisplayMode.value === 'json' ? 'table' : 'json'
+}
 
 // 获取数据库schema列表
 const fetchSchemas = async () => {
@@ -217,22 +229,44 @@ onMounted(() => {
       
       <!-- 主表数据 -->
       <div class="main-table-section">
-        <h4>{{ selectedTable }} (主表)</h4>
+        <div class="section-header">
+          <h4>{{ selectedTable }} (主表)</h4>
+          <el-button type="primary" size="small" @click="toggleMainTableMode">
+            切换为{{ mainTableDisplayMode === 'json' ? '表格' : 'JSON' }}模式
+          </el-button>
+        </div>
         <el-card class="result-card">
-          <vue-json-pretty
-            :data="mainTableData"
-            :deep="2"
-            :show-double-quotes="true"
-            :show-length="true"
-            :show-line="true"
-            class="json-viewer"
-          />
+          <template v-if="mainTableDisplayMode === 'json'">
+            <vue-json-pretty
+              :data="mainTableData"
+              :deep="2"
+              :show-double-quotes="true"
+              :show-length="true"
+              :show-line="true"
+              class="json-viewer"
+            />
+          </template>
+          <template v-else>
+            <el-table :data="mainTableData" border stripe>
+              <el-table-column
+                v-for="(value, key) in mainTableData?.[0] || {}"
+                :key="key"
+                :prop="key"
+                :label="key"
+              />
+            </el-table>
+          </template>
         </el-card>
       </div>
 
       <!-- 关联表数据 -->
       <div v-if="Object.keys(relatedTablesData).length" class="related-tables-section">
-        <h4>关联表数据</h4>
+        <div class="section-header">
+          <h4>关联表数据</h4>
+          <el-button type="primary" size="small" @click="toggleRelatedTablesMode">
+            切换为{{ relatedTablesDisplayMode === 'json' ? '表格' : 'JSON' }}模式
+          </el-button>
+        </div>
         <el-collapse>
           <el-collapse-item
             v-for="(data, tableName) in relatedTablesData"
@@ -240,14 +274,26 @@ onMounted(() => {
             :title="tableName"
           >
             <el-card class="result-card">
-              <vue-json-pretty
-                :data="data"
-                :deep="2"
-                :show-double-quotes="true"
-                :show-length="true"
-                :show-line="true"
-                class="json-viewer"
-              />
+              <template v-if="relatedTablesDisplayMode === 'json'">
+                <vue-json-pretty
+                  :data="data"
+                  :deep="2"
+                  :show-double-quotes="true"
+                  :show-length="true"
+                  :show-line="true"
+                  class="json-viewer"
+                />
+              </template>
+              <template v-else>
+                <el-table :data="data" border stripe>
+                  <el-table-column
+                    v-for="(value, key) in data?.[0] || {}"
+                    :key="key"
+                    :prop="key"
+                    :label="key"
+                  />
+                </el-table>
+              </template>
             </el-card>
           </el-collapse-item>
         </el-collapse>
