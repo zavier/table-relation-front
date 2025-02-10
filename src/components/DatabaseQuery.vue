@@ -19,6 +19,7 @@ const relatedTablesDisplayMode = ref('json') // 关联表展示模式：'json' �
 const mainTableComments = ref({}) // 主表字段注释
 const relatedTablesComments = ref({}) // 关联表字段注释
 
+
 // 切换主表展示模式
 const toggleMainTableMode = () => {
   mainTableDisplayMode.value = mainTableDisplayMode.value === 'json' ? 'table' : 'json'
@@ -34,10 +35,9 @@ const fetchSchemas = async () => {
   try {
     const response = await axios.get('/api/table/allSchema')
     if (response.data.success) {
-      // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
       schemas.value = response.data.data.map((schemaName) => ({
-        id: schemaName,
-        name: schemaName
+        value: schemaName,
+        label: schemaName
       }))
     } else {
       ElMessage.error(response.data.message)
@@ -60,10 +60,9 @@ const fetchTables = async () => {
       }
     })
     if (response.data.success) {
-      // 将返回的字符串数组转换为对象数组格式，以适配现有的组件结构
       tables.value = response.data.data.map((tableName) => ({
-        id: tableName,
-        name: tableName
+        value: tableName,
+        label: tableName
       }))
     } else {
       ElMessage.error(response.data.message)
@@ -176,12 +175,13 @@ onMounted(() => {
       placeholder="选择数据库Schema"
       class="query-select"
       @change="fetchTables"
+      filterable
     >
       <el-option
         v-for="schema in schemas"
-        :key="schema.id"
-        :label="schema.name"
-        :value="schema.id"
+        :key="schema.value"
+        :label="schema.label"
+        :value="schema.value"
       />
     </el-select>
 
@@ -192,12 +192,13 @@ onMounted(() => {
       class="query-select"
       :disabled="!selectedSchema"
       @change="fetchFields"
+      filterable
     >
       <el-option
         v-for="table in tables"
-        :key="table.id"
-        :label="table.name"
-        :value="table.id"
+        :key="table.value"
+        :label="table.label"
+        :value="table.value"
       />
     </el-select>
 
@@ -205,7 +206,7 @@ onMounted(() => {
     <div class="query-conditions" v-if="selectedTable">
       
       <div v-for="(condition, index) in queryConditions" :key="index" class="condition-row">
-        <el-select v-model="condition.field" placeholder="选择字段" class="condition-field">
+        <el-select v-model="condition.field" placeholder="选择字段" class="condition-field" filterable>
           <el-option
             v-for="field in fields"
             :key="field.id"

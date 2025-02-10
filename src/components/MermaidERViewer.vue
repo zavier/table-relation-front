@@ -39,8 +39,8 @@ const fetchSchemas = async () => {
     const response = await axios.get('/api/table/allSchema')
     if (response.data.success) {
       schemas.value = response.data.data.map((schemaName) => ({
-        id: schemaName,
-        name: schemaName
+        value: schemaName,
+        label: schemaName
       }))
     } else {
       ElMessage.error(response.data.message)
@@ -64,8 +64,8 @@ const fetchTables = async () => {
     })
     if (response.data.success) {
       tables.value = response.data.data.map((tableName) => ({
-        id: tableName,
-        name: tableName
+        value: tableName,
+        label: tableName
       }))
     } else {
       ElMessage.error(response.data.message)
@@ -184,12 +184,13 @@ onMounted(() => {
         placeholder="选择数据库Schema"
         class="control-item"
         @change="fetchTables"
+        filterable
       >
         <el-option
           v-for="schema in schemas"
-          :key="schema.id"
-          :label="schema.name"
-          :value="schema.id"
+          :key="schema.value"
+          :label="schema.label"
+          :value="schema.value"
         />
       </el-select>
 
@@ -199,12 +200,13 @@ onMounted(() => {
         placeholder="选择表"
         class="control-item"
         :disabled="!selectedSchema"
+        filterable
       >
         <el-option
           v-for="table in tables"
-          :key="table.id"
-          :label="table.name"
-          :value="table.id"
+          :key="table.value"
+          :label="table.label"
+          :value="table.value"
         />
       </el-select>
 

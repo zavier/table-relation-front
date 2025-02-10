@@ -279,6 +279,7 @@ onMounted(() => {
           v-model="selectedSchema"
           placeholder="选择库名筛选"
           clearable
+          filterable
           class="schema-filter"
         >
           <el-option
@@ -341,19 +342,19 @@ onMounted(() => {
         class="relation-form"
       >
         <el-form-item label="库名" prop="tableSchema">
-          <el-select v-model="formData.tableSchema" placeholder="请选择库名" @change="handleSchemaChange">
+          <el-select v-model="formData.tableSchema" placeholder="请选择库名" @change="handleSchemaChange" filterable>
             <el-option v-for="item in schemas" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         
         <el-form-item label="表名" prop="tableName">
-          <el-select v-model="formData.tableName" placeholder="请选择表名" :disabled="!formData.tableSchema" @change="handleTableChange">
+          <el-select v-model="formData.tableName" placeholder="请选择表名" :disabled="!formData.tableSchema" @change="handleTableChange" filterable>
             <el-option v-for="item in tables" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         
         <el-form-item label="表字段" prop="columnName">
-          <el-select v-model="formData.columnName" placeholder="请选择表字段" :disabled="!formData.tableName">
+          <el-select v-model="formData.columnName" placeholder="请选择表字段" :disabled="!formData.tableName" filterable>
             <el-option v-for="item in fields" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -363,19 +364,19 @@ onMounted(() => {
         </el-form-item>
         
         <el-form-item label="关联库名" prop="referencedTableSchema">
-          <el-select v-model="formData.referencedTableSchema" placeholder="请选择关联库名" @change="handleReferencedSchemaChange">
+          <el-select v-model="formData.referencedTableSchema" placeholder="请选择关联库名" @change="handleReferencedSchemaChange" filterable>
             <el-option v-for="item in schemas" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         
         <el-form-item label="关联表名" prop="referencedTableName">
-          <el-select v-model="formData.referencedTableName" placeholder="请选择关联表名" :disabled="!formData.referencedTableSchema" @change="handleReferencedTableChange">
+          <el-select v-model="formData.referencedTableName" placeholder="请选择关联表名" :disabled="!formData.referencedTableSchema" @change="handleReferencedTableChange" filterable>
             <el-option v-for="item in referencedTables" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         
         <el-form-item label="关联表字段" prop="referencedColumnName">
-          <el-select v-model="formData.referencedColumnName" placeholder="请选择关联表字段" :disabled="!formData.referencedTableName">
+          <el-select v-model="formData.referencedColumnName" placeholder="请选择关联表字段" :disabled="!formData.referencedTableName" filterable>
             <el-option v-for="item in referencedFields" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
