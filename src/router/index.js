@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import DatabaseQuery from '../components/DatabaseQuery.vue'
 import DataSourceManage from '../components/DataSourceManage.vue'
 import TableRelationManage from '../components/TableRelationManage.vue'
@@ -6,7 +6,7 @@ import JsonFormatter from '../components/JsonFormatter.vue'
 import MermaidERViewer from '../components/MermaidERViewer.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
