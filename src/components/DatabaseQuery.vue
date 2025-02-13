@@ -294,7 +294,7 @@ onMounted(() => {
           <el-collapse-item
             v-for="(data, tableName) in relatedTablesData"
             :key="tableName"
-            :title="tableName"
+            :title="`${tableName} (${data.length}条)`"
           >
             <el-card class="result-card">
               <template v-if="relatedTablesDisplayMode === 'json'">
