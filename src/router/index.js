@@ -1,9 +1,9 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import DatabaseQuery from '../components/DatabaseQuery.vue'
-import DataSourceManage from '../components/DataSourceManage.vue'
-import TableRelationManage from '../components/TableRelationManage.vue'
-import JsonFormatter from '../components/JsonFormatter.vue'
-import MermaidERViewer from '../components/MermaidERViewer.vue'
+import DatabaseQuery from '../views/DatabaseQuery.vue'
+import DataSourceManage from '../views/DataSourceManage.vue'
+import TableRelationManage from '../views/TableRelationManage.vue'
+import JsonFormatter from '../views/JsonFormatter.vue'
+import MermaidERViewer from '../views/MermaidERViewer.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
