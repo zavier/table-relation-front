@@ -4,6 +4,7 @@ import DataSourceManage from '../views/DataSourceManage.vue'
 import TableRelationManage from '../views/TableRelationManage.vue'
 import JsonFormatter from '../views/JsonFormatter.vue'
 import MermaidERViewer from '../views/MermaidERViewer.vue'
+import NlToSqlView from '../views/NlToSqlView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -36,6 +37,11 @@ const router = createRouter({
       path: '/json-formatter',
       name: 'JsonFormatter',
       component: JsonFormatter
+    },
+    {
+      path: '/nl-to-sql',
+      name: 'NlToSql',
+      component: NlToSqlView
     }
   ]
 })
