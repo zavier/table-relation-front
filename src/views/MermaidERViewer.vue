@@ -147,6 +147,21 @@ const zoomOut = () => {
   }
 }
 
+// 复制Mermaid代码
+const copyMermaidCode = async () => {
+  if (!erDiagram.value) {
+    ElMessage.warning('请先生成ER图')
+    return
+  }
+  try {
+    await navigator.clipboard.writeText(erDiagram.value)
+    ElMessage.success('复制成功')
+  } catch (error) {
+    console.error('复制失败:', error)
+    ElMessage.error('复制失败')
+  }
+}
+
 // 拖拽相关方法
 const handleMouseDown = (e) => {
   isDragging.value = true
@@ -244,6 +259,15 @@ onMounted(() => {
         :disabled="!erDiagram"
       >
         缩小
+      </el-button>
+
+      <!-- 复制按钮 -->
+      <el-button
+        type="primary"
+        @click="copyMermaidCode"
+        :disabled="!erDiagram"
+      >
+        复制代码
       </el-button>
     </div>
 
