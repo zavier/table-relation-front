@@ -14,8 +14,8 @@ const queryConditions = ref([])
 const queryResult = ref(null)
 const mainTableData = ref(null)
 const relatedTablesData = ref({})
-const mainTableDisplayMode = ref('json') // 主表展示模式：'json' 或 'table'
-const relatedTablesDisplayMode = ref('json') // 关联表展示模式：'json' 或 'table'
+const mainTableDisplayMode = ref('table') // 主表展示模式：'json' 或 'table'
+const relatedTablesDisplayMode = ref('table') // 关联表展示模式：'json' 或 'table'
 const mainTableComments = ref({}) // 主表字段注释
 const relatedTablesComments = ref({}) // 关联表字段注释
 
@@ -160,6 +160,23 @@ const executeQuery = async () => {
   }
 }
 
+// 复制查询结果数据
+const copyQueryResult = () => {
+  try {
+    // 只复制tableData部分
+    const tableDataOnly = Object.entries(queryResult.value).reduce((acc, [key, value]) => {
+      acc[key] = value
+      return acc
+    }, {})
+    const jsonStr = JSON.stringify(tableDataOnly, null, 2)
+    navigator.clipboard.writeText(jsonStr)
+    ElMessage.success('复制成功')
+  } catch (error) {
+    console.error('复制失败:', error)
+    ElMessage.error('复制失败')
+  }
+}
+
 onMounted(() => {
   fetchSchemas()
 })
@@ -238,7 +255,12 @@ onMounted(() => {
 
     <!-- 查询结果 -->
     <div v-if="queryResult" class="query-result">
-      <h3>查询结果</h3>
+      <div class="result-header">
+        <h3>查询结果</h3>
+        <el-button type="primary" size="small" @click="copyQueryResult">
+          复制结果
+        </el-button>
+      </div>
       
       <!-- 主表数据 -->
       <div class="main-table-section">
@@ -266,6 +288,7 @@ onMounted(() => {
                 :key="key"
                 :prop="key"
                 :label="key"
+                show-overflow-tooltip
               >
                 <template #header>
                   <el-tooltip
@@ -275,6 +298,11 @@ onMounted(() => {
                   >
                     <span>{{ key }}</span>
                   </el-tooltip>
+                </template>
+                <template #default="scope">
+                  <div class="cell-content">
+                    {{ scope.row[key] }}
+                  </div>
                 </template>
               </el-table-column>
             </el-table>
@@ -314,6 +342,7 @@ onMounted(() => {
                     :key="key"
                     :prop="key"
                     :label="key"
+                    show-overflow-tooltip
                   >
                     <template #header>
                       <el-tooltip
