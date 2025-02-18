@@ -134,6 +134,7 @@ const executeQuery = async () => {
       // 分离主表数据和关联表数据
       mainTableData.value = tableData[selectedTable.value] || []
       mainTableComments.value = comments[selectedTable.value] || {}
+      ElMessage.success('查询成功')
       
       // 处理关联表数据和注释
       relatedTablesData.value = Object.entries(tableData)
