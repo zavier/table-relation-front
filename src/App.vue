@@ -46,6 +46,46 @@ const router = useRouter()
   </el-container>
 </template>
 
+<!-- 全局样式 -->
+<style>
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  color: #333;
+  background-color: #f5f7fa;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #e5eaf3;
+    background-color: #1a1a1a;
+  }
+  
+  .el-card,
+  .el-input__inner,
+  .el-textarea__inner {
+    color: #e5eaf3 !important;
+    background-color: #2b2b2b !important;
+  }
+  
+  .el-table {
+    color: #e5eaf3 !important;
+    background-color: #2b2b2b !important;
+  }
+  
+  .el-table th,
+  .el-table tr {
+    background-color: #2b2b2b !important;
+  }
+  
+  .el-table--striped .el-table__body tr.el-table__row--striped td {
+    background-color: #363636 !important;
+  }
+}
+</style>
+
 <style scoped>
 .app-container {
   height: 100vh;
