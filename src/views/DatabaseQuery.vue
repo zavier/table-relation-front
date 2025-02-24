@@ -289,6 +289,7 @@ onMounted(() => {
                 :key="key"
                 :prop="key"
                 :label="key"
+                sortable
                 show-overflow-tooltip
               >
                 <template #header>
@@ -343,6 +344,7 @@ onMounted(() => {
                     :key="key"
                     :prop="key"
                     :label="key"
+                    sortable
                     show-overflow-tooltip
                   >
                     <template #header>
