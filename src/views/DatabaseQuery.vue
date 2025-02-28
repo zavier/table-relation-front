@@ -120,6 +120,27 @@ const removeCondition = (index) => {
   queryConditions.value.splice(index, 1)
 }
 
+// 复制SQL结果数据
+const copySqlResult = async () => {
+  try {
+    const response = await axios.post('/api/table/generateInsertSql', {
+      schema: selectedSchema.value,
+      table: selectedTable.value,
+      conditions: queryConditions.value
+    })
+    if (response.data.success) {
+      const jsonStr = JSON.stringify(response.data.data, null, 2)
+      await navigator.clipboard.writeText(jsonStr)
+      ElMessage.success('复制成功')
+    } else {
+      ElMessage.error(response.data.message || '生成SQL失败')
+    }
+  } catch (error) {
+    console.error('复制失败:', error)
+    ElMessage.error('复制失败')
+  }
+}
+
 // 执行查询
 const executeQuery = async () => {
   try {
@@ -238,7 +259,7 @@ onMounted(() => {
           <el-option label="不等于" value="!=" />
           <el-option label="大于" value=">" />
           <el-option label="小于" value="<" />
-          <el-option label="包含" value="LIKE" />
+          <el-option label="LIKE" value="LIKE" />
         </el-select>
         
         <el-input v-model="condition.value" placeholder="输入值" class="condition-value" />
@@ -247,10 +268,12 @@ onMounted(() => {
       </div>
 
       <div class="query-actions">
-        <el-button type="primary" @click="addCondition">添加条件</el-button>
+        <el-button @click="addCondition">添加条件</el-button>
         <el-button type="primary" @click="executeQuery" :disabled="!queryConditions.length">
           执行查询
         </el-button>
+        <el-button type="info" @click="copyQueryResult" plain>复制JSON结果</el-button>
+        <el-button type="info" @click="copySqlResult" plain>复制SQL结果</el-button>
       </div>
     </div>
 
@@ -258,9 +281,6 @@ onMounted(() => {
     <div v-if="queryResult" class="query-result">
       <div class="result-header">
         <h3>查询结果</h3>
-        <el-button type="primary" size="small" @click="copyQueryResult">
-          复制结果
-        </el-button>
       </div>
       
       <!-- 主表数据 -->
