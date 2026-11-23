@@ -1,3 +1,5 @@
+> ⚠️ 本仓库已归档，代码已迁移至 [zavier/table-relation](https://github.com/zavier/table-relation) 的 `frontend/` 目录，请勿在此提交改动。
+
 # 数据库查询工具
 
 ## 项目背景
